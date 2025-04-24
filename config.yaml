@@ -1,0 +1,16 @@
+FRAME_WIDTH: 640
+FRAME_HEIGHT: 480
+
+CORNER_POS:
+  TOP_LEFT: 
+    px: [0, 0]
+    physical: [0, 0]
+  TOP_RIGHT:
+    px: [640, 0]
+    physical: [0.1, 0]
+  BOTTOM_LEFT:
+    px: [0, 480]
+    physical: [0, 0.1]
+  BOTTOM_RIGHT: 
+    px: [640, 480]
+    physical: [0.1, 0.1]
