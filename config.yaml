@@ -14,3 +14,5 @@ CORNER_POS:
   BOTTOM_RIGHT: 
     px: [640, 480]
     physical: [0.1, 0.1]
+
+BACKGROUND_IMG: "./test_data/background.png"

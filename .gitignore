@@ -1,1 +1,11 @@
 *.bkp
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+*.pdb
+*.egg-info
+*.egg
+*.whl
+*.db
+.vscode
