@@ -3,7 +3,8 @@ import numpy as np
 from collections import deque
 from matplotlib.patches import Rectangle, Circle
 
-from animation import AnimatorBase
+# from animation import AnimatorBase
+from aniTest import AnimatorBase
 
 class AnimatorSimple(AnimatorBase):
     def __init__(self):
@@ -185,5 +186,8 @@ if __name__ == "__main__":
     # ani = Animator()
     ani = AnimatorSimple()
     ani_img = ani.get_plot()
+    np.set_printoptions(threshold=np.inf)
+    np.set_printoptions(linewidth=100000)
+    print(ani_img[:, :, 1]/255)
     plt.imshow(ani_img)
     plt.show()

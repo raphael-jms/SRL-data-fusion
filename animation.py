@@ -49,39 +49,56 @@ class AnimatorBase:
         mpl.rcParams['savefig.pad_inches'] = 0
         
         # Create figure with appropriate size to match data aspect ratio
-        # Width is set to 10 inches, height is adjusted according to aspect ratio
         width_inches = 10
         height_inches = width_inches * aspect_ratio
-
         self.width_px = int(width_inches * dpi)
         self.height_px = int(height_inches * dpi)
         self.dpi = dpi
 
-        self.fig = plt.figure(figsize=(width_inches, height_inches), dpi=dpi)
+        # Create a new figure with clear=True to ensure no state is carried over
+        self.fig = plt.figure(figsize=(width_inches, height_inches), dpi=dpi, clear=True)
         
         # Create axes that fill the entire figure
         self.ax = plt.axes([0, 0, 1, 1], frameon=False)
         
-        # # Set the data limits
+        # CRITICAL: Set the data limits BEFORE any plotting happens
         # self.ax.set_xlim(self.xmin, self.xmax)
         # self.ax.set_ylim(self.ymin, self.ymax)
         
-        # Don't set aspect='equal' as it will distort the plot
-        # Instead, we've already accounted for aspect ratio in the figure size
+        # Disable axes
+        self.ax.get_xaxis().set_visible(False)
+        self.ax.get_yaxis().set_visible(False)
         
-        # # Disable axes completely
-        # self.ax.get_xaxis().set_visible(False)
-        # self.ax.get_yaxis().set_visible(False)
-        
-        # # Turn off all padding
-        # plt.autoscale(tight=True)
+        # Disable autoscaling to prevent any automatic adjustments
         # self.ax.autoscale(False)
         
-        # # Make figure and axes backgrounds transparent
-        # for item in [self.fig, self.ax]:
-        #     item.patch.set_visible(False)
+        # Set transparent background
+        self.fig.patch.set_visible(False)
+        self.ax.patch.set_visible(False)
         
         self.plot_setup()
+    
+    def plot_setup(self):
+        """Override this method in your child class to add initial plot elements."""
+        pass
+    
+    def update(self, custom_msg=None):
+        """Override this method in your child class to update plot elements."""
+        pass
+    
+    def get_plot(self):
+        """Return the plot as numpy array"""
+        # Force limits again to be sure
+        self.ax.set_xlim(self.xmin, self.xmax)
+        self.ax.set_ylim(self.ymin, self.ymax)
+        
+        # Ensure the figure is drawn
+        self.fig.canvas.draw()
+        
+        # Convert to array
+        plot_array = np.frombuffer(self.fig.canvas.tostring_rgb(), dtype=np.uint8)
+        plot_array = plot_array.reshape(self.fig.canvas.get_width_height()[::-1] + (3,))
+        return plot_array
     
     def get_plot_old(self):
         """ Return the plot as numpy array """

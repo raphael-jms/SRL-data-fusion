@@ -86,7 +86,7 @@ while video.isOpened():
     motion_mask = cv2.morphologyEx(motion_mask, cv2.MORPH_CLOSE, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5)))
 
     # add the animation to the background
-    ani.update()
+    # ani.update()
     ani_plot = ani.get_plot()
 
     ani_warped = cv2.warpPerspective(ani_plot, ani_transform, (bg_width, bg_height)
