@@ -73,12 +73,6 @@ class AnimatorBase:
         for item in [self.fig, self.ax]:
             item.patch.set_visible(False)
         
-        # # Example data points
-        # self.ax.scatter(
-        #     [0, 0, 4.1, 4.1], 
-        #     [3.3-1.6, -1.6, 3.3-1.6, -1.6], 
-        #     c='r', s=100)
-
         self.plot_setup()
     
     def get_plot(self):
@@ -96,8 +90,3 @@ class AnimatorBase:
         """ Method for updating the plot in animations """
         pass
 
-# if __name__ == "__main__":
-#     ani = Animator()
-#     ani_img = ani.get_plot()
-#     plt.imshow(ani_img)
-#     plt.show()

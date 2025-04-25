@@ -2,7 +2,7 @@ import ffmpeg
 import cv2
 import numpy as np
 
-from animation import Animator
+from example_animation import Animator
 
 orig_video = "./test_data/IMG_3965.MOV"
 video_name = orig_video.split(".")[-2].split("/")[-1]
