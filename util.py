@@ -1,17 +1,25 @@
 import ffmpeg
 import os
+import cv2
 
-class DataStreamer:
+class Streamer:
     def __init__(self, data):
         self.data = None
         self.index = 0
 
     def get_newest(self):
         pass
-        
 
-class VideoStreamer(DataStreamer):
+    def is_running(self):
+        return True
+
+class VideoStreamer(Streamer):
     def __init__(self, video_path, start_time=0, end_time=None, fps=30):
+
+        """
+        Could maybe rewrite this all and completely remove the ffmpeg dependency?
+        In that case just start reading the video at the given start time
+        """
         super().__init__(video_path)
         self.start_time = start_time
         self.end_time = end_time
@@ -35,9 +43,27 @@ class VideoStreamer(DataStreamer):
         self.video_path = processed_video_name
         self.original_video_path = video_path
 
-        self.video = None  # Placeholder for video object
-        self.index = 0  # Placeholder for current frame index
+        self.video = cv2.VideoCapture(self.video_path)
+
+    def is_running(self):
+        return self.video.isOpened()
 
     def get_newest(self):
         # Logic to get the newest frame from the video
-        pass
+        return self.video.read()
+
+    def get_time(self):
+        return  cv2.CAP_PROP_POS_MSEC
+
+class DataStreamer(Streamer):
+    def __init__(self, data):
+        super().__init__(data)
+        self.data = data
+        self.index = 0
+
+    def get_data(sellf, time):
+        return None
+
+    def get_newest(self):
+        # Logic to get the newest data
+        return self.data[self.index], True

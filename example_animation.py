@@ -118,6 +118,7 @@ class Animator(AnimatorBase):
         angular_velocity: [1] float; angular velocity of the robot in rad/s
         forces: [8] array; forces of the thrusters in N
         """
+        return
         self.position = msg.position
         self.orientation = msg.orientation
         self.angular_velocity = msg.angular_velocity

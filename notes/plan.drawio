@@ -1,6 +1,6 @@
 <mxfile host="Electron" agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/26.2.2 Chrome/134.0.6998.178 Electron/35.1.2 Safari/537.36" version="26.2.2">
   <diagram name="Page-1" id="tAcegJHshy6Wr7WlmGtF">
-    <mxGraphModel dx="1601" dy="963" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+    <mxGraphModel dx="649" dy="459" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -113,8 +113,20 @@
         <mxCell id="HDrXCvShkbB9lNWR8o-I-12" value="DaVinci Resolve sucks because requires GPU&lt;div&gt;Maybe best: Limit Scope to simple overlay of data, implement this myself&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="1" vertex="1">
           <mxGeometry x="930" y="990" width="410" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="09et8kMC1PxhQDYRsZ9E-1" value="Idea: add a different filtering technique that does not need the background image" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+        <mxCell id="09et8kMC1PxhQDYRsZ9E-1" value="Idea: add a different filtering technique that does not need the background image" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="1" vertex="1">
           <mxGeometry x="195" y="978" width="450" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="kim30n1tNhyVVTcnEqX1-1" value="Ideas:&lt;div&gt;- for more usefulness for live debugging:&lt;/div&gt;&lt;blockquote style=&quot;margin: 0 0 0 40px; border: none; padding: 0px;&quot;&gt;- add way to display gridlines etc&lt;/blockquote&gt;&lt;blockquote style=&quot;margin: 0 0 0 40px; border: none; padding: 0px;&quot;&gt;- add another mode with a simple overlay (i.e. the data is simply displayed on top of the video with some transparency)&lt;/blockquote&gt;" style="text;html=1;align=left;verticalAlign=top;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="40" y="1110" width="690" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="kim30n1tNhyVVTcnEqX1-2" value="" style="endArrow=classic;html=1;rounded=0;exitX=0.833;exitY=0.933;exitDx=0;exitDy=0;exitPerimeter=0;" edge="1" parent="1" source="HDrXCvShkbB9lNWR8o-I-5">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="1200" y="380" as="sourcePoint" />
+            <mxPoint x="1390" y="460" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="kim30n1tNhyVVTcnEqX1-3" value="Maybe unwanted? If there are sudden changes,&lt;div&gt;it could result in the change not being sudden, but&lt;/div&gt;&lt;div&gt;split up over two frames&lt;/div&gt;&lt;div&gt;(e.g. faulty force)&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=top;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="1250" y="460" width="290" height="70" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
