@@ -50,6 +50,10 @@ class AnimatorBase:
         # Width is set to 10 inches, height is adjusted according to aspect ratio
         width_inches = 10
         height_inches = width_inches * aspect_ratio
+
+        self.width_px = int(width_inches * dpi)
+        self.height_px = int(height_inches * dpi)
+
         self.fig = plt.figure(figsize=(width_inches, height_inches), dpi=dpi)
         
         # Create axes that fill the entire figure

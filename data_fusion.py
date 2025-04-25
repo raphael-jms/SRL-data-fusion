@@ -1,6 +1,7 @@
 import ffmpeg
 import cv2
 import numpy as np
+import yaml
 
 from example_animation import Animator
 
@@ -12,6 +13,8 @@ video_file = orig_video
 background_file = "./test_data/background_" + video_name + ".png"
 print(f"Video file: {video_file} \nBackground file: {background_file}")
 
+config = yaml.safe_load(open("config.yaml", "r"))
+
 background = cv2.imread(background_file)
 background_gray = cv2.cvtColor(background, cv2.COLOR_BGR2GRAY)
 
@@ -22,17 +25,18 @@ ASSIGN_VALUE = 255
 ## Prepare intermediate animation layer
 ani = Animator()
 
-pts_video = np.array(
-    [[550, 115],  # upper left
-     [1480, 135], # upper right
-     [390, 928],  # lower left
-     [1685, 907]])# lower right
+# Find mapping from animation to video
+pts_video = np.array([
+    config["CORNER_POS"]["TOP_LEFT"]["px"],
+    config["CORNER_POS"]["TOP_RIGHT"]["px"],
+    config["CORNER_POS"]["BOTTOM_LEFT"]["px"],
+    config["CORNER_POS"]["BOTTOM_RIGHT"]["px"]])
     
 pts_ani = np.array(
-    [[0, 0], # upper left
-     [1000, 0], # upper right
-     [0, 1000], # lower left
-     [1000, 1000]])# lower right
+    [[0, 0],                         # upper left
+     [ani.width_px, 0],              # upper right
+     [0, ani.height_px],             # lower left
+     [ani.width_px, ani.height_px]]) # lower right
 
 ani_transform, _ = cv2.findHomography(pts_ani, pts_video, cv2.RANSAC, 5.0)
 bg_height, bg_width = background_gray.shape
