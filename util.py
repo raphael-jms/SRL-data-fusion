@@ -2,15 +2,21 @@ import ffmpeg
 import os
 import cv2
 
-class Streamer:
-    def __init__(self, data):
-        self.data = None
-        self.index = 0
+import rclpy
+from rclpy.serialization import deserialize_message
+from rosidl_runtime_py.utilities import get_message
+import rosbag2_py
 
-    def get_newest(self):
+class Streamer:
+    def __init__(self, data_source):
+        pass
+
+    def get_data(self, time=None):
+        """ Get the desired data. If time is None, return the most recent data. """
         pass
 
     def is_running(self):
+        """ Check that there is still data to be read. """
         return True
 
 class VideoStreamer(Streamer):
@@ -48,7 +54,7 @@ class VideoStreamer(Streamer):
     def is_running(self):
         return self.video.isOpened()
 
-    def get_newest(self):
+    def get_data(self, time=None):
         # Logic to get the newest frame from the video
         return self.video.read()
 
@@ -56,14 +62,57 @@ class VideoStreamer(Streamer):
         return  cv2.CAP_PROP_POS_MSEC
 
 class DataStreamer(Streamer):
-    def __init__(self, data):
-        super().__init__(data)
-        self.data = data
-        self.index = 0
+    """
+    Read data from a ROS bag file
+    """
+    def __init__(self, data_file, topic_name='/px4_mpc/controller_values'):
+        # Initialize storage reader
+        storage_options = rosbag2_py.StorageOptions(
+            uri=str(data_file),
+            storage_id='sqlite3'
+        )
+        converter_options = rosbag2_py.ConverterOptions('', '')
+        self.reader = rosbag2_py.SequentialReader()
+        self.reader.open(storage_options, converter_options)
 
-    def get_data(sellf, time):
-        return None
+        # Get topic types
+        topic_types = self.reader.get_all_topics_and_types()
+        self.type_map = {topic.name: topic.type for topic in topic_types}
 
-    def get_newest(self):
-        # Logic to get the newest data
-        return self.data[self.index], True
+        self.topic_name = topic_name
+
+        self.last_data = None
+
+    def get_data(self, time):
+        # Get the next data point of the topic that interests us (if existing)
+        current_data = None
+        while current_data is None and self.reader.has_next():
+            topic_name, data, t = self.reader.read_next()
+            msg_type = get_message(self.type_map[topic_name])
+            msg = deserialize_message(data, msg_type)
+            
+            if topic_name == self.topic_name:
+                current_data = {
+                    't': t,
+                    'data': msg
+                }
+
+        if current_data is not None and self.last_data is not None:
+            # both last and current data exist, choose the one closest to the current time
+            if abs(current_data['t'] - time) < abs(self.last_data['t'] - time):
+                self.last_data = current_data
+                return current_data['msg']
+            else:
+                return self.last_data['msg']
+        elif current_data is not None and self.last_data is None:
+            # first read
+            self.last_data = current_data
+            return current_data['msg']
+        elif current_data is None and self.last_data is not None:
+            # probably the last data point in the bag
+            return self.last_data['msg']
+        else:
+            raise ValueError("No data found in Rosbag.")
+
+    def is_running(self):
+        return self.reader.has_next()

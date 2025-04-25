@@ -65,6 +65,9 @@ class DataFusion:
         while self.video.is_running():
             result = self.fuse_frame()
 
+            if result is None:
+                break
+
             cv2.imshow('Current Frame', result)
             # Wait for 1 ms and check for 'q' key to exit
             if cv2.waitKey(1) & 0xFF == ord('q'):
@@ -76,7 +79,7 @@ class DataFusion:
         """
         ret, frame = self.video.get_newest()
         if not ret:
-            raise Exception("Error reading frame from video stream")
+            return None
 
         # Convert frame to grayscale
         frame_gray = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)      
