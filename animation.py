@@ -1,5 +1,7 @@
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_agg import FigureCanvasAgg
 import numpy as np
 import io
 from PIL import Image
@@ -36,112 +38,67 @@ class AnimatorBase:
         Ideas/Todo:
         - [ ] Add method to still show axis labels and ticks
         """
+        # Close all existing pyplot figures to ensure clean state
+        plt.close('all')
+        
         # Set plot limits
         self.xmin, self.xmax = 0, 4.10
         self.ymin, self.ymax = -1.60, 1.70
         
-        # Calculate the aspect ratio based on the data range
+        # Calculate aspect ratio
         x_range = self.xmax - self.xmin
         y_range = self.ymax - self.ymin
         aspect_ratio = y_range / x_range
         
-        # Remove padding
-        mpl.rcParams['savefig.pad_inches'] = 0
-        
-        # Create figure with appropriate size to match data aspect ratio
+        # Calculate figure dimensions
         width_inches = 10
         height_inches = width_inches * aspect_ratio
         self.width_px = int(width_inches * dpi)
         self.height_px = int(height_inches * dpi)
         self.dpi = dpi
-
-        # Create a new figure with clear=True to ensure no state is carried over
-        self.fig = plt.figure(figsize=(width_inches, height_inches), dpi=dpi, clear=True)
+        
+        # Create a Figure (not using pyplot)
+        self.fig = Figure(figsize=(width_inches, height_inches), dpi=dpi)
+        
+        # Create a canvas for the figure (required for rendering)
+        self.canvas = FigureCanvasAgg(self.fig)
         
         # Create axes that fill the entire figure
-        self.ax = plt.axes([0, 0, 1, 1], frameon=False)
+        self.ax = self.fig.add_axes([0, 0, 1, 1], frameon=False)
         
-        # CRITICAL: Set the data limits BEFORE any plotting happens
-        # self.ax.set_xlim(self.xmin, self.xmax)
-        # self.ax.set_ylim(self.ymin, self.ymax)
-        
-        # Disable axes
-        self.ax.get_xaxis().set_visible(False)
-        self.ax.get_yaxis().set_visible(False)
-        
-        # Disable autoscaling to prevent any automatic adjustments
-        # self.ax.autoscale(False)
-        
-        # Set transparent background
-        self.fig.patch.set_visible(False)
-        self.ax.patch.set_visible(False)
-        
-        self.plot_setup()
-    
-    def plot_setup(self):
-        """Override this method in your child class to add initial plot elements."""
-        pass
-    
-    def update(self, custom_msg=None):
-        """Override this method in your child class to update plot elements."""
-        pass
-    
-    def get_plot(self):
-        """Return the plot as numpy array"""
-        # Force limits again to be sure
+        # Set the plot limits
         self.ax.set_xlim(self.xmin, self.xmax)
         self.ax.set_ylim(self.ymin, self.ymax)
         
-        # Ensure the figure is drawn
-        self.fig.canvas.draw()
+        # Turn off axes
+        self.ax.axis('off')
         
-        # Convert to array
-        plot_array = np.frombuffer(self.fig.canvas.tostring_rgb(), dtype=np.uint8)
-        plot_array = plot_array.reshape(self.fig.canvas.get_width_height()[::-1] + (3,))
+        # Disable autoscaling
+        self.ax.autoscale(False)
+        
+        # Set transparent backgrounds
+        self.fig.patch.set_alpha(0)
+        self.ax.patch.set_alpha(0)
+        
+        # Add invisible corner points to force correct limits
+        self._corner_points = self.ax.scatter(
+            [self.xmin, self.xmax, self.xmin, self.xmax],
+            [self.ymin, self.ymin, self.ymax, self.ymax],
+            s=0, alpha=0)
+    
+    def get_plot(self):
+        """Return the plot as a numpy array"""
+        # Draw the canvas to render the figure
+        self.canvas.draw()
+        
+        # Convert to numpy array
+        plot_array = np.array(self.canvas.renderer.buffer_rgba())
+        
+        # Convert RGBA to RGB
+        plot_array = plot_array[:, :, :3]
+        
         return plot_array
     
-    def get_plot_old(self):
-        """ Return the plot as numpy array """
-        self.fig.canvas.draw()
-        plot_array = np.frombuffer(self.fig.canvas.tostring_rgb(), dtype=np.uint8)
-        plot_array = plot_array.reshape(self.fig.canvas.get_width_height()[::-1] + (3,))
-        return plot_array
-
-    def get_plot_old2(self):
-        # Force a draw of the figure to ensure it's rendered
-        self.fig.canvas.draw()
-        
-        # Get the renderer and draw again to a fresh canvas
-        renderer = self.fig.canvas.get_renderer()
-        self.fig.draw(renderer)
-        
-        # Get the RGB buffer
-        plot_array = np.frombuffer(self.fig.canvas.tostring_rgb(), dtype=np.uint8)
-        plot_array = plot_array.reshape(self.fig.canvas.get_width_height()[::-1] + (3,))
-        return plot_array
-
-    def get_plot(self):
-        """Return the plot as numpy array using system renderer via savefig"""
-        # Create in-memory binary stream
-        buf = io.BytesIO()
-        
-        # Save figure to the buffer using the system renderer
-        self.fig.savefig(buf, format='png', dpi=self.dpi, 
-                        bbox_inches=None, pad_inches=0, 
-                        facecolor='none', transparent=True)
-        buf.seek(0)
-        
-        # Load the image from buffer using PIL
-        image = Image.open(buf)
-        
-        # Convert PIL image to numpy array
-        plot_array = np.array(image.convert('RGB'))
-        
-        # Close the buffer
-        buf.close()
-        
-        return plot_array
-
     def plot_setup(self):
         """ Method for setting up the plot """
         pass
