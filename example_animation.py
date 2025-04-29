@@ -6,9 +6,11 @@ from matplotlib.patches import Rectangle, Circle
 from animation import AnimatorBase
 # from aniTest import AnimatorBase
 
+from micro_orbiting_msgs.msg import ControllerValues
+
 class AnimatorSimple(AnimatorBase):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, dpi=100):
+        super().__init__(dpi)
         self.plot_setup()
     
     def plot_setup(self):
@@ -32,8 +34,8 @@ class Animator(AnimatorBase):
     - the previous path of the robot
     - the thruster forces
     """
-    def __init__(self):
-        super().__init__()
+    def __init__(self, dpi=100):
+        super().__init__(dpi)
         self.plot_setup()
     
     def plot_setup(self):
@@ -118,10 +120,10 @@ class Animator(AnimatorBase):
         angular_velocity: [1] float; angular velocity of the robot in rad/s
         forces: [8] array; forces of the thrusters in N
         """
-        return
-        self.position = msg.position
-        self.orientation = msg.orientation
-        self.angular_velocity = msg.angular_velocity
+        self.position = [msg.x1, msg.y1]
+        self.robot_path.append(np.array(self.position))
+        self.orientation = msg.alpha
+        self.angular_velocity = msg.omega
 
     def update_plot(self):
         """

@@ -8,7 +8,7 @@ from util import DataStreamer, VideoStreamer
 from example_animation import Animator
 
 class DataFusion:
-    def __init__(self, orig_video, config_path):
+    def __init__(self, orig_video, data_file, config_path):
         video_name = orig_video.split(".")[-2].split("/")[-1]
 
         video_file = "./test_data/" + video_name + "_temp.mp4"
@@ -25,7 +25,7 @@ class DataFusion:
         self.ASSIGN_VALUE = 255
 
         ## Prepare intermediate animation layer
-        self.ani = Animator()
+        self.ani = Animator(dpi=100)
 
         # Find mapping from animation to video
         pts_video = np.array([
@@ -55,8 +55,9 @@ class DataFusion:
                                     )
         
         ## Prepare video stream
-        self.video = VideoStreamer(video_file)
-        self.data_stream = DataStreamer("ani_data_file.txt")
+        # self.video = VideoStreamer(video_file, start_playback_t=10)
+        self.video = VideoStreamer(video_file, start_playback_t=10)
+        self.data_stream = DataStreamer(data_file)
 
     def fuse_data(self):
         """
@@ -77,7 +78,7 @@ class DataFusion:
         """
         Fuse the current frame from the video stream with the animation.
         """
-        ret, frame = self.video.get_newest()
+        ret, frame = self.video.get_data()
         if not ret:
             return None
 
@@ -117,11 +118,18 @@ class DataFusion:
             cv2.bitwise_and(background, background, mask=cv2.bitwise_not(motion_mask))
         )
 
+        # Add text to the frame
+        cv2.putText(result, f"Time video: {self.video.get_time()}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+        cv2.putText(result, f"Time data:  {self.data_stream.get_time()}", (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+        cv2.putText(result, f"Time diff:  {(self.video.get_time() - self.data_stream.get_time())*1e-9} s", (10, 90), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+        cv2.putText(result, f"FPS: {self.video.measured_fps()} == {self.video.fps}", (10, 120), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+
         return result
 
 if __name__ == "__main__":
     orig_video = "./test_data/IMG_3965.MOV"
+    rosbag_file = "./test_data/rosbag2_2025_02_10-18_17_04"
     config_path ="config.yaml"
 
-    data_fusion = DataFusion(orig_video, config_path)
+    data_fusion = DataFusion(orig_video, rosbag_file, config_path)
     data_fusion.fuse_data()
