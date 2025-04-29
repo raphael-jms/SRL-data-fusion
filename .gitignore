@@ -9,5 +9,6 @@ __pycache__
 *.whl
 *.db
 .vscode
-.mp4
-.MOV
+*.mp4
+*.MOV
+*.db3
