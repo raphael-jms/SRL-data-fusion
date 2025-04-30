@@ -25,7 +25,7 @@ class DataFusion:
         self.ASSIGN_VALUE = 255
 
         ## Prepare intermediate animation layer
-        self.ani = Animator(dpi=150)
+        self.ani = Animator(dpi=100)
 
         # Find mapping from animation to video
         pts_video = np.array([
@@ -53,6 +53,9 @@ class DataFusion:
         self.ani_mask = cv2.warpPerspective(white_img_like_ani, ani_transform, (bg_width, bg_height)
                                     #, flags=cv2.INTER_LINEAR, borderMode=cv2.BORDER_CONSTANT, borderValue=(0, 0, 0)
                                     )
+
+        self.ani_mask_active = np.where(self.ani_mask > 0)
+        self.ani_mask_inactive = np.where(self.ani_mask == 0)
         
         ## Prepare video stream
         # self.video = VideoStreamer(video_file, start_playback_t=10)
@@ -99,10 +102,20 @@ class DataFusion:
         self.ani.update(self.data_stream.get_data(cur_time_msec))
         ani_plot = self.ani.get_plot()
 
-        ani_warped = cv2.warpPerspective(ani_plot, self.ani_transform, (self.bg_width, self.bg_height)
-                            # , dst=ani_plot, flags=cv2.INTER_LINEAR, borderMode=cv2.BORDER_CONSTANT, borderValue=(0, 0, 0)
+        ani_warped = cv2.warpPerspective(ani_plot, self.ani_transform, (self.bg_width, self.bg_height),
+                            # flags = cv2.INTER_NEAREST,
+                            # flags = cv2.INTER_LINEAR,
+                            flags = cv2.INTER_CUBIC,
+                            # flags = cv2.INTER_AREA,
+                            # flags = cv2.INTER_LANCZOS4,
+                            # flags = cv2.INTER_LINEAR_EXACT,
+                            # flags = cv2.INTER_NEAREST_EXACT,
+                            # flags = cv2.INTER_MAX,
+                            # flags = cv2.WARP_FILL_OUTLIERS,
+                            # flags = cv2.WARP_INVERSE_MAP, 
+                            # borderMode=cv2.BORDER_TRANSPARENT,
                             )
-        # remove all black pixels
+
         transparent_overlay = cv2.addWeighted(frame, 0.5, ani_warped, 0.5, 0) # add the animation
         background = cv2.add(
             cv2.bitwise_and(frame, frame, mask=cv2.bitwise_not(self.ani_mask)), # cut out the 

@@ -6,26 +6,26 @@ from matplotlib.patches import Rectangle, Circle
 from animation import AnimatorBase
 # from aniTest import AnimatorBase
 
-from micro_orbiting_msgs.msg import ControllerValues
+# Remove unused import
+# from micro_orbiting_msgs.msg import ControllerValues
 
 class AnimatorSimple(AnimatorBase):
     def __init__(self, dpi=100):
         super().__init__(dpi)
-        self.plot_setup()
+        # plot_setup is already called in AnimatorBase.__init__
+        # Removing this redundant call: self.plot_setup()
     
     def plot_setup(self):
         # Example data points
-        self.ax.scatter(
+        scatter = self.ax.scatter(
             [0, 0, 4.1, 4.1], 
             [3.3-1.6, -1.6, 3.3-1.6, -1.6], 
-            # c='r', 
             color=(1, 0, 0),
             s=100)
         
-        # plt.show()
-
-    def update(self):
-        pass
+        # Add a circle
+        circle = Circle((0, 0), 0.5, color='blue', alpha=0.5)
+        self.ax.add_patch(circle)
 
 class Animator(AnimatorBase):
     """
@@ -34,36 +34,51 @@ class Animator(AnimatorBase):
     - the previous path of the robot
     - the thruster forces
 
-    The animator uses blitting (see matplotlib doc) in oncrease the performance, although that is not
+    The animator uses blitting (see matplotlib doc) to increase the performance, although that is not
     strictly necessary.
     """
     def __init__(self, dpi=100):
+        # Initialize base class first - this will call plot_setup
         super().__init__(dpi)
-        self.plot_setup()
     
     def plot_setup(self):
         # Visualization parameters
         self.robot_width = 0.6
         self.robot_height = 0.6
-        self.force_scaler = 0.5 # scale the force to a resonable size for visualization
+        self.force_scaler = 0.5 # scale the force to a reasonable size for visualization
 
         # Initialize state variables for initial plot
         self.position = np.zeros(2)
         self.orientation = 0.0
         self.angular_velocity = 0.0
+        self.forces = np.zeros(8)
 
         ## Robot position
         self.robot_rect = Rectangle(
             (0, 0), self.robot_width, self.robot_height,
-            fill=False, linewidth=2, color='blue', animated=True
+            fill=False, linewidth=2, color='blue'
         )
         self.ax.add_patch(self.robot_rect)
+        self.add_animated_artist(self.robot_rect)
 
-        # Instead of arrow, use a line with marker for orientation
-        self.orientation_arrow = self.ax.arrow(
-            0, 0, 0, 0, head_width=0.1, head_length=0.2,
-            fc='blue', ec='blue', animated=True
+        ## Create orientation arrow
+        # Use a Line2D instead of arrow for orientation
+        arrow_length = max(self.robot_width, self.robot_height) * 0.6
+        dx = arrow_length * np.cos(self.orientation)
+        dy = arrow_length * np.sin(self.orientation)
+        # self.orientation_line, = self.ax.plot(
+        #     [self.position[0], self.position[0] + dx],
+        #     [self.position[1], self.position[1] + dy],
+        #     color='blue', lw=2
+        # )
+        self.orientation_line = self.ax.add_patch(
+            plt.matplotlib.patches.FancyArrowPatch(
+                (self.position[0], self.position[1]), 
+                (self.position[0] + dx, self.position[1] + dy), 
+                arrowstyle='->', mutation_scale=15, color='blue', lw=2
+            )
         )
+        self.add_animated_artist(self.orientation_line)
         
         ## Robot path
         # Path storage
@@ -76,7 +91,14 @@ class Animator(AnimatorBase):
         for _ in range(self.path_points):
             self.robot_path.append(np.zeros(2))
 
-        self.robot_path_line, = self.ax.plot([], [], '-', color='blue', alpha=0.5, animated=True)
+        # Create path line
+        robot_path_array = np.array(self.robot_path)
+        self.robot_path_line, = self.ax.plot(
+            robot_path_array[:, 0], 
+            robot_path_array[:, 1], 
+            '-', color='blue', alpha=0.5
+        )
+        self.add_animated_artist(self.robot_path_line)
 
         ## Thruster forces
         # Positions/orientations of thrusters
@@ -93,30 +115,21 @@ class Animator(AnimatorBase):
             [-val1, -val2,  0, -1],
         ])
 
-        # Create force arrows
-        self.force_arrows = []
-        for _ in range(8):
-            self.force_arrows.append(
-                self.ax.arrow(0, 0, 0, 0, head_width=0.05, head_length=0.1,
-                            fc='black', ec='black', alpha=1.0, animated=True)
+        # Create force lines instead of arrows
+        self.force_lines = []
+        for i in range(8):
+            # Local positions in robot's coordinate system
+            start_point = np.array([self.pos_orient[i, 0], self.pos_orient[i, 1]])
+            global_start = self.position + start_point
+            
+            # Add a simple line for now
+            line, = self.ax.plot(
+                [global_start[0], global_start[0]], 
+                [global_start[1], global_start[1]], 
+                color='black', alpha=0.0
             )
-
-        self.forces = np.zeros(8)
-
-        ## Implement blitting (requires animated=True for all elements)
-        # Store fized and animated elements
-        self.animated_elements = [
-            self.robot_rect,
-            self.orientation_arrow,
-            self.robot_path_line
-        ] + self.force_arrows
-        self.background = self.fig.canvas.copy_from_bbox(self.ax.bbox)
-
-        # Draw animated elements
-        for element in self.animated_elements:
-            self.ax.draw_artist(element)
-        self.fig.canvas.blit(self.ax.bbox)
-        self.fig.canvas.flush_events()
+            self.force_lines.append(line)
+            self.add_animated_artist(line)
 
     def update(self, msg):
         """
@@ -125,6 +138,8 @@ class Animator(AnimatorBase):
         # Split up into update_states and update_plot for clarity.
         self.update_states(msg)
         self.update_plot()
+        # Call the base class update method 
+        super().update()
 
     def update_states(self, msg):
         """
@@ -137,16 +152,13 @@ class Animator(AnimatorBase):
         self.robot_path.append(np.array(self.position))
         self.orientation = msg.alpha
         self.angular_velocity = msg.omega
+        # TODO : Forces are currently ignored
 
     def update_plot(self):
         """
         Update all plot elements. Code involves mainly a lot of transformation from the
-        local to global coordinate system, followed by a 'set_data' command.
+        local to global coordinate system, followed by updating the plot data.
         """
-        ## Restore the background
-        self.fig.canvas.restore_region(self.background)
-
-        ## Draw the animated elements
         # Calculate rotation matrix
         R = np.array([
             [np.cos(self.orientation), -np.sin(self.orientation)],
@@ -161,13 +173,17 @@ class Animator(AnimatorBase):
         self.robot_rect.set_xy((rect_x, rect_y))
         self.robot_rect.angle = np.degrees(self.orientation)
 
-        # Update orientation arrow
+        # Update orientation line
         arrow_length = max(self.robot_width, self.robot_height) * 0.6
         dx = arrow_length * np.cos(self.orientation)
         dy = arrow_length * np.sin(self.orientation)
-        self.orientation_arrow.set_data(
-            x=self.position[0], y=self.position[1],
-            dx=dx, dy=dy
+        # self.orientation_line.set_data(
+        #     [self.position[0], self.position[0] + dx],
+        #     [self.position[1], self.position[1] + dy]
+        # )
+        self.orientation_line.set_positions(
+            (self.position[0], self.position[1]), 
+            (self.position[0] + dx, self.position[1] + dy)
         )
 
         ## Update path
@@ -178,37 +194,31 @@ class Animator(AnimatorBase):
 
         ## Update thruster forces
         for i in range(8):
+            # Skip updating if force is too small
             if abs(self.forces[i]) < 1e-6:
-                self.force_arrows[i].set_alpha(0.0)
+                self.force_lines[i].set_alpha(0.0)
                 continue
             
-            self.force_arrows[i].set_alpha(1.0)
+            self.force_lines[i].set_alpha(1.0)
 
-            # local positions in robots own coordinate system
+            # Local positions in robot's own coordinate system
             start_point = np.array([self.pos_orient[i, 0], self.pos_orient[i, 1]])
             direction = np.array([self.pos_orient[i, 2], self.pos_orient[i, 3]])
             end_point = start_point + direction * self.forces[i] * self.force_scaler
 
-            # clobal start and end points
+            # Global start and end points
             start_global = self.position + R @ start_point
             end_global = self.position + R @ end_point
 
-            self.force_arrows[i].set_data(
-                x=start_global[0], y=start_global[1],
-                dx=end_global[0] - start_global[0],
-                dy=end_global[1] - start_global[1]
+            # Update line data
+            self.force_lines[i].set_data(
+                [start_global[0], end_global[0]],
+                [start_global[1], end_global[1]]
             )
-
-        ## Draw updated frame
-        # self.fig.canvas.draw()
-        for element in self.animated_elements:
-            self.ax.draw_artist(element)
-        self.fig.canvas.blit(self.ax.bbox)
-        self.fig.canvas.flush_events()
 
 if __name__ == "__main__":
     # ani = Animator()
-    ani = AnimatorSimple()
+    ani = AnimatorSimple(dpi=100)
     ani_img = ani.get_plot()
     plt.imshow(ani_img)
     plt.show()
