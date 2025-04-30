@@ -149,7 +149,14 @@ class Animator(AnimatorBase):
         forces: [8] array; forces of the thrusters in N
         """
         self.position = [msg.x1, msg.y1]
-        self.robot_path.append(np.array(self.position))
+
+        thres = 0.75
+        if abs(self.robot_path[-1][0] - msg.x1) < thres and abs(self.robot_path[-1][1] - msg.y1) < thres:
+            self.robot_path.append(np.array(self.position))
+        else:
+            # If the robot has moved more than thres meters in one step, probably some data is missing.
+            self.robot_path = deque(np.array([self.position] *self.path_points) , maxlen=self.path_points)
+
         self.orientation = msg.alpha
         self.angular_velocity = msg.omega
         # TODO : Forces are currently ignored

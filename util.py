@@ -4,6 +4,8 @@ import cv2
 # import datetime
 from datetime import datetime, timedelta
 import time
+from collections import deque
+from numbers import Number
 
 from rclpy.serialization import deserialize_message
 from rosidl_runtime_py.utilities import get_message
@@ -117,18 +119,10 @@ class DataStreamer(Streamer):
         self.topic_name = topic_name
         self.last_timestamp = None
 
-        self.buffer = []
+        self.buffer = deque(maxlen=2)
 
     def get_data(self, time):
-        # Read ahead until we have data points beyond the requested time
-        # if self.buffer:
-        #     print(self.buffer[-1]['t'])
-        #     print(time)
-        #     print(f"Time difference seconds: {(self.buffer[-1]['t'] - time) * 1e-9}")
-        #     print("need correct conversion between time and t; check what ROS2 actually uses")
-        
-
-        while (not self.buffer or self.buffer[-1]['t'] <= time) and self.reader.has_next():
+        while (not self.buffer or self.buffer[0]['t'] >= time or self.buffer[-1]['t'] <= time) and self.reader.has_next():
             topic_name, data, t = self.reader.read_next()
             
             if topic_name == self.topic_name:
@@ -141,26 +135,27 @@ class DataStreamer(Streamer):
         
         if not self.buffer:
             raise ValueError("No data found in Rosbag.")
-        
-        # Find the closest data point
-        closest_idx = 0
-        closest_diff = abs(self.buffer[0]['t'] - time)
-        
-        for i, data_point in enumerate(self.buffer):
-            diff = abs(data_point['t'] - time)
-            if diff < closest_diff:
-                closest_diff = diff
-                closest_idx = i
-        
-        # Get result
-        result = self.buffer[closest_idx]['data']
-        self.last_timestamp = self.buffer[closest_idx]['t']
-        
-        # Remove data points that are no longer needed
-        # (everything before the closest point, except the closest point itself)
-        self.buffer = self.buffer[closest_idx:]
-        
-        return result
+
+        # interpolate
+        if len(self.buffer) == 1:
+            self.last_timestamp = self.buffer[0]['t']
+            return self.buffer[0]['data']
+        elif len(self.buffer) == 2:
+            t1 = self.buffer[0]['t']
+            t2 = self.buffer[1]['t']
+            data1 = self.buffer[0]['data']
+            data2 = self.buffer[1]['data']
+
+            # Interpolate all numeric fields
+            alpha = (time - t1) / (t2 - t1)
+            interpolated_data = ControllerValues()
+            for field in dir(data1):
+                if field in dir(data2) and isinstance(getattr(data1, field), Number):
+                    setattr(interpolated_data, field, getattr(data1, field) * (1 - alpha) + getattr(data2, field) * alpha)
+            
+            self.last_timestamp = time
+            return interpolated_data
+ 
 
     def is_running(self):
         return self.reader.has_next()

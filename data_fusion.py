@@ -59,7 +59,7 @@ class DataFusion:
         
         ## Prepare video stream
         # self.video = VideoStreamer(video_file, start_playback_t=10)
-        self.video = VideoStreamer(video_file, start_playback_t=10)
+        self.video = VideoStreamer(video_file, start_playback_t=7)
         self.data_stream = DataStreamer(data_file)
 
     def fuse_data(self):
