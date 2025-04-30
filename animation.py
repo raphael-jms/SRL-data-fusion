@@ -80,12 +80,6 @@ class AnimatorBase:
         self.fig.patch.set_alpha(0)
         self.ax.patch.set_alpha(0)
         
-        # Add invisible corner points to force correct limits
-        self._corner_points = self.ax.scatter(
-            [self.xmin, self.xmax, self.xmin, self.xmax],
-            [self.ymin, self.ymin, self.ymax, self.ymax],
-            s=0, alpha=0)
-    
     def get_plot(self):
         """Return the plot as a numpy array"""
         # Draw the canvas to render the figure

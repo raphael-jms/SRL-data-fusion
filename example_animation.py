@@ -39,11 +39,6 @@ class Animator(AnimatorBase):
         self.plot_setup()
     
     def plot_setup(self):
-        self.ax.scatter(
-            [0, 0, 4.1, 4.1], 
-            [3.3-1.6, -1.6, 3.3-1.6, -1.6], 
-            c='r', s=100)
-
         # Visualization parameters
         self.robot_width = 0.6
         self.robot_height = 0.6
