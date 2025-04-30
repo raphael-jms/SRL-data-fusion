@@ -33,6 +33,9 @@ class Animator(AnimatorBase):
     - the robot position
     - the previous path of the robot
     - the thruster forces
+
+    The animator uses blitting (see matplotlib doc) in oncrease the performance, although that is not
+    strictly necessary.
     """
     def __init__(self, dpi=100):
         super().__init__(dpi)
@@ -52,14 +55,14 @@ class Animator(AnimatorBase):
         ## Robot position
         self.robot_rect = Rectangle(
             (0, 0), self.robot_width, self.robot_height,
-            fill=False, linewidth=2, color='blue'
+            fill=False, linewidth=2, color='blue', animated=True
         )
         self.ax.add_patch(self.robot_rect)
 
         # Instead of arrow, use a line with marker for orientation
         self.orientation_arrow = self.ax.arrow(
             0, 0, 0, 0, head_width=0.1, head_length=0.2,
-            fc='blue', ec='blue'
+            fc='blue', ec='blue', animated=True
         )
         
         ## Robot path
@@ -73,7 +76,7 @@ class Animator(AnimatorBase):
         for _ in range(self.path_points):
             self.robot_path.append(np.zeros(2))
 
-        self.robot_path_line, = self.ax.plot([], [], '-', color='blue', alpha=0.5)
+        self.robot_path_line, = self.ax.plot([], [], '-', color='blue', alpha=0.5, animated=True)
 
         ## Thruster forces
         # Positions/orientations of thrusters
@@ -95,10 +98,25 @@ class Animator(AnimatorBase):
         for _ in range(8):
             self.force_arrows.append(
                 self.ax.arrow(0, 0, 0, 0, head_width=0.05, head_length=0.1,
-                            fc='black', ec='black', alpha=1.0)
+                            fc='black', ec='black', alpha=1.0, animated=True)
             )
 
         self.forces = np.zeros(8)
+
+        ## Implement blitting (requires animated=True for all elements)
+        # Store fized and animated elements
+        self.animated_elements = [
+            self.robot_rect,
+            self.orientation_arrow,
+            self.robot_path_line
+        ] + self.force_arrows
+        self.background = self.fig.canvas.copy_from_bbox(self.ax.bbox)
+
+        # Draw animated elements
+        for element in self.animated_elements:
+            self.ax.draw_artist(element)
+        self.fig.canvas.blit(self.ax.bbox)
+        self.fig.canvas.flush_events()
 
     def update(self, msg):
         """
@@ -125,6 +143,10 @@ class Animator(AnimatorBase):
         Update all plot elements. Code involves mainly a lot of transformation from the
         local to global coordinate system, followed by a 'set_data' command.
         """
+        ## Restore the background
+        self.fig.canvas.restore_region(self.background)
+
+        ## Draw the animated elements
         # Calculate rotation matrix
         R = np.array([
             [np.cos(self.orientation), -np.sin(self.orientation)],
@@ -178,7 +200,11 @@ class Animator(AnimatorBase):
             )
 
         ## Draw updated frame
-        self.fig.canvas.draw()
+        # self.fig.canvas.draw()
+        for element in self.animated_elements:
+            self.ax.draw_artist(element)
+        self.fig.canvas.blit(self.ax.bbox)
+        self.fig.canvas.flush_events()
 
 if __name__ == "__main__":
     # ani = Animator()

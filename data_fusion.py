@@ -25,7 +25,7 @@ class DataFusion:
         self.ASSIGN_VALUE = 255
 
         ## Prepare intermediate animation layer
-        self.ani = Animator(dpi=100)
+        self.ani = Animator(dpi=150)
 
         # Find mapping from animation to video
         pts_video = np.array([

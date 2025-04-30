@@ -81,10 +81,9 @@ class AnimatorBase:
         self.ax.patch.set_alpha(0)
         
     def get_plot(self):
-        """Return the plot as a numpy array"""
-        # Draw the canvas to render the figure
-        self.canvas.draw()
-        
+        """
+        Return the plot as a numpy array
+        """
         # Convert to numpy array
         plot_array = np.array(self.canvas.renderer.buffer_rgba())
         
