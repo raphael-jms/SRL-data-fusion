@@ -55,7 +55,6 @@ class VideoStreamer(Streamer):
         self.end_playback_frame = end_playback_t * self.fps if end_playback_t is not None else \
             self.video.get(cv2.CAP_PROP_FRAME_COUNT)
 
-        # time.ctime(1739207828001926291*1e-9)
         try:
             if start_time is None:
                 streams = ffmpeg.probe(self.video_path)["streams"]
@@ -77,9 +76,11 @@ class VideoStreamer(Streamer):
         self.start_t = time.time()
 
     def is_running(self):
+        """ Check if the video stream is still running. """
         return self.video.isOpened()
 
     def get_data(self, time=None):
+        """ Get the newest frame from the video stream. """
         # Logic to get the newest frame from the video
         self.frame_count += 1
 
@@ -122,6 +123,11 @@ class DataStreamer(Streamer):
         self.buffer = deque(maxlen=2)
 
     def get_data(self, time):
+        """
+        Read the data from the ROS bag file at the specified time. 
+        Interpolate the two closest messages if possible.
+        """
+        # Read the closes data points to the requested time
         while (not self.buffer or self.buffer[0]['t'] >= time or self.buffer[-1]['t'] <= time) and self.reader.has_next():
             topic_name, data, t = self.reader.read_next()
             
