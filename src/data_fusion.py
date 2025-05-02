@@ -2,8 +2,6 @@ import cv2
 import numpy as np
 import yaml
 
-from src.util import DataStreamer, VideoStreamer
-
 from examples.example_animation import Animator
 
 class DataFusion:

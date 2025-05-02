@@ -27,7 +27,7 @@ class Streamer:
         """ Check that there is still data to be read. """
         return True
 
-class VideoStreamer(Streamer):
+class VideoStreamerRecorded(Streamer):
     def __init__(self, video_path, start_time=None, start_playback_t=0, end_playback_t=None, background_path=None):
 
         """
@@ -121,7 +121,7 @@ class VideoStreamer(Streamer):
         background = cv2.imread(self.background_path)
         return background
 
-class DataStreamer(Streamer):
+class DataStreamerRosbag(Streamer):
     """
     Read data from a ROS bag file
     """

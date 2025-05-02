@@ -1,7 +1,7 @@
 import argparse
 import yaml
 
-from src.util import VideoStreamer, DataStreamer
+from src.util import VideoStreamerRecorded, DataStreamerRosbag
 from src.data_fusion import DataFusion
 
 parser = argparse.ArgumentParser()
@@ -17,13 +17,13 @@ args = parser.parse_args()
 config = yaml.safe_load(open(args.config, "r"))
 background_image = config.get("BACKGROUND_IMAGE", None)
 
-video = VideoStreamer(args.video, 
-                      start_time=args.time_sync,
-                      start_playback_t=args.start_playback, 
-                      end_playback_t=args.end_playback,
-                      background_path=background_image)
+video = VideoStreamerRecorded(args.video, 
+                              start_time=args.time_sync,
+                              start_playback_t=args.start_playback, 
+                              end_playback_t=args.end_playback,
+                              background_path=background_image)
 
-data = DataStreamer(args.rosbag, args.ros_topic)
+data = DataStreamerRosbag(args.rosbag, args.ros_topic)
 
 data_fusion = DataFusion(video, data, args.config)
 data_fusion.fuse_data()
