@@ -28,7 +28,7 @@ class Streamer:
         return True
 
 class VideoStreamer(Streamer):
-    def __init__(self, video_path, start_time=None, start_playback_t=0, end_playback_t=None):
+    def __init__(self, video_path, start_time=None, start_playback_t=0, end_playback_t=None, background_path=None):
 
         """
         Args:
@@ -42,6 +42,7 @@ class VideoStreamer(Streamer):
 
         # Convert to mp4 if necessary, adjust fps, and trim the video
         self.video_path = video_path
+        self.background_path = background_path
         if not os.path.exists(self.video_path):
             raise ValueError(f"Video file {self.video_path} does not exist.")
 
@@ -106,17 +107,18 @@ class VideoStreamer(Streamer):
         """
         Get the constant background image from the video stream.
         """
-        video_name = self.video_path.split(".")[-2].split("/")[-1]
-        background_file = "./test_data/background_" + video_name + ".png"
+        if self.background_path is None:
+            video_name = self.video_path.split(".")[-2].split("/")[-1]
+            self.background_path = "./test_data/background_" + video_name + ".png"
 
-        if not os.path.exists(background_file):
-            warnings.warn(f"Background file {background_file} does not exist. Extracting background from video. Please wait...")
+        if not os.path.exists(self.background_path):
+            warnings.warn(f"Background file {self.background_path} does not exist. Extracting background from video. Please wait...")
             # Extract background from video
-            extract_background(self.video_path, background_file, num_frames=25)
+            extract_background(self.video_path, self.background_path, num_frames=25)
 
-        print(f"Video file: {self.video_path} \nBackground file: {background_file}")
+        print(f"Video file: {self.video_path} \nBackground file: {self.background_path}")
 
-        background = cv2.imread(background_file)
+        background = cv2.imread(self.background_path)
         return background
 
 class DataStreamer(Streamer):

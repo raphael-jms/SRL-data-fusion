@@ -81,6 +81,9 @@ class DataFusion:
         else:
             self.add_logo = False
 
+        # Save the video stream
+        fourcc = cv2.VideoWriter_fourcc(*"MP4V")
+        self.video_writer = cv2.VideoWriter("output.MP4", fourcc, self.video.fps, (bg_width, bg_height))
 
     def fuse_data(self):
         """
@@ -96,6 +99,8 @@ class DataFusion:
             # Wait for 1 ms and check for 'q' key to exit
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
+
+        self.video_writer.release()
     
     def fuse_frame(self):
         """
@@ -155,11 +160,13 @@ class DataFusion:
         if self.add_logo:
             result[self.logo_start[1]:self.logo_end[1], self.logo_start[0]:self.logo_end[0], :] = self.logo
 
-        # Add text to the frame
-        cv2.putText(result, f"Time video: {self.video.get_time()}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
-        cv2.putText(result, f"Time data:  {self.data_stream.get_time()}", (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
-        cv2.putText(result, f"Time diff:  {(self.video.get_time() - self.data_stream.get_time())*1e-9} s", (10, 90), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
-        cv2.putText(result, f"FPS: {self.video.measured_fps()} == {self.video.fps}", (10, 120), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+        # # Add text to the frame
+        # cv2.putText(result, f"Time video: {self.video.get_time()}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+        # cv2.putText(result, f"Time data:  {self.data_stream.get_time()}", (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+        # cv2.putText(result, f"Time diff:  {(self.video.get_time() - self.data_stream.get_time())*1e-9} s", (10, 90), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+        # cv2.putText(result, f"FPS: {self.video.measured_fps()} == {self.video.fps}", (10, 120), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+
+        self.video_writer.write(result)
 
         return result
 

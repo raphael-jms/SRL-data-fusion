@@ -1,4 +1,5 @@
 import argparse
+import yaml
 
 from src.util import VideoStreamer, DataStreamer
 from src.data_fusion import DataFusion
@@ -13,10 +14,14 @@ parser.add_argument("--end_playback", type=float, default=None, help="End time o
 parser.add_argument("--time_sync", type=float, default=None, help="Start time of video as POSIX timestamp. None: will try to synchronize automatically")
 args = parser.parse_args()
 
+config = yaml.safe_load(open(args.config, "r"))
+background_image = config.get("BACKGROUND_IMAGE", None)
+
 video = VideoStreamer(args.video, 
                       start_time=args.time_sync,
                       start_playback_t=args.start_playback, 
-                      end_playback_t=args.end_playback)
+                      end_playback_t=args.end_playback,
+                      background_path=background_image)
 
 data = DataStreamer(args.rosbag, args.ros_topic)
 
