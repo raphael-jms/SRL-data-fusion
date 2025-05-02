@@ -20,8 +20,7 @@ video = VideoStreamer(args.video,
 
 data = DataStreamer(args.rosbag, args.ros_topic)
 
-
-
-
-data_fusion = DataFusion(orig_video, rosbag_file, config_path)
+data_fusion = DataFusion(video, data, args.config)
 data_fusion.fuse_data()
+
+# Save data

@@ -6,11 +6,14 @@ from datetime import datetime, timedelta
 import time
 from collections import deque
 from numbers import Number
+import warnings
 
 from rclpy.serialization import deserialize_message
 from rosidl_runtime_py.utilities import get_message
 import rosbag2_py
 from micro_orbiting_msgs.msg import ControllerValues
+
+from src.setup_configuration import extract_background
 
 class Streamer:
     def __init__(self, data_source):
@@ -98,6 +101,23 @@ class VideoStreamer(Streamer):
     
     def measured_fps(self):
         return (self.frame_count - self.start_playback_frame) / (time.time() - self.start_t)
+    
+    def get_background(self):
+        """
+        Get the constant background image from the video stream.
+        """
+        video_name = self.video_path.split(".")[-2].split("/")[-1]
+        background_file = "./test_data/background_" + video_name + ".png"
+
+        if not os.path.exists(background_file):
+            warnings.warn(f"Background file {background_file} does not exist. Extracting background from video. Please wait...")
+            # Extract background from video
+            extract_background(self.video_path, background_file, num_frames=25)
+
+        print(f"Video file: {self.video_path} \nBackground file: {background_file}")
+
+        background = cv2.imread(background_file)
+        return background
 
 class DataStreamer(Streamer):
     """

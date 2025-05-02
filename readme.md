@@ -1,11 +1,10 @@
 # Data fusion for Space Robotics Lab at KTH
 
-Repo that aims to simplify making custom animations and data fusion for environments with a steady camera. The resulting video can look like this:
+Fuse video and custom animations for environments with a steady camera. The resulting video can look like this:
 
 [ insert video ]
 
 Features:
-- Data fusion can happen both offline (implemented) and live (in progress)
-- Data for animation is transferred via ROS (other carriers are simple to implement)
-- Animation itself can simply be implemented via Matplotlibs intuitive interface
-- Examples are provided
+- Works both offline (implemented) and live (in progress)
+- Data transfer for animation via ROS (other carriers are simple to implement)
+- Custom animation can be implemented via Matplotlibs intuitive interface

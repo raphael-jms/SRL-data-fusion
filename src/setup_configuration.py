@@ -3,7 +3,7 @@ import ffmpeg
 import os
 import argparse
 
-def extract_background(input_file, output_file, num_frames=25):
+def extract_background(input_file, output_file=None, num_frames=25):
     """
     Extract the background from a video with a steady camera by sampling frames
     across the entire video duration and applying temporal median filtering.
@@ -14,7 +14,8 @@ def extract_background(input_file, output_file, num_frames=25):
         num_frames (int): Number of frames to use for median calculation
     """
     video_name = input_file.split(".")[-2].split("/")[-1]
-    output_file = "./test_data/background_" + video_name +".png"
+    if output_file is None:
+        output_file = "./test_data/background_" + video_name +".png"
     try:
         # Get video duration and total frames using ffprobe
         probe = ffmpeg.probe(input_file)
@@ -67,4 +68,4 @@ if __name__ == "__main__":
         # Extract the background from the video specified in the configuration
         input_file = args.file
         num_frames = 25  # Default to 25 frames if not specified
-        extract_background(input_file, num_frames)
+        extract_background(input_file, num_frames=num_frames)
