@@ -18,6 +18,7 @@ class DataFusion:
 
         config = yaml.safe_load(open(config_path, "r"))
 
+        # Add to autogenerate background if not exists
         background = cv2.imread(background_file)
         self.background_gray = cv2.cvtColor(background, cv2.COLOR_BGR2GRAY)
 
