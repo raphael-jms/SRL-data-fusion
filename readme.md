@@ -10,3 +10,7 @@ Features:
 - Works both offline (implemented) and live (in progress)
 - Data transfer for animation via ROS (other carriers are simple to implement)
 - Custom animation can be implemented via Matplotlibs intuitive interface
+
+## TODO
+- [ ] Add support for live streams
+- [ ] Add installation instructions
