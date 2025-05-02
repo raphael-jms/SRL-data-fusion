@@ -5,9 +5,10 @@ from matplotlib.backends.backend_agg import FigureCanvasAgg
 import numpy as np
 import io
 from PIL import Image
+import yaml
 
 class AnimatorBase:
-    def __init__(self, dpi=100):
+    def __init__(self, dpi=100, config_path="config.yaml"):
         """
         Class used to create an animation that is later fused with the video.
         
@@ -46,8 +47,14 @@ class AnimatorBase:
         plt.close('all')
         
         # Set plot limits
-        self.xmin, self.xmax = 0, 4.10
-        self.ymin, self.ymax = -1.60, 1.70
+        try:
+            config = yaml.safe_load(open(config_path, "r"))
+            self.xmin = config["CORNER_POS"]["ARENA"]["xmin"]
+            self.xmax = config["CORNER_POS"]["ARENA"]["xmax"]
+            self.ymin = config["CORNER_POS"]["ARENA"]["ymin"]
+            self.ymax = config["CORNER_POS"]["ARENA"]["ymax"]
+        except KeyError as e:
+            raise KeyError(f"Missing corner position in config file: Please check the config file.") from e
         
         # Calculate aspect ratio
         x_range = self.xmax - self.xmin

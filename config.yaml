@@ -1,13 +1,16 @@
-# Add the positions (px) of the corners of the arena in the video
 CORNER_POS:
-  TOP_LEFT: 
-    px: [550, 115]
-  TOP_RIGHT:
-    px: [1480, 135]
-  BOTTOM_LEFT:
-    px: [390, 928]
-  BOTTOM_RIGHT: 
-    px: [1685, 907]
+  # limits of the arena in real life, in m
+  ARENA:
+    xmin: 0
+    xmax: 4.10
+    ymin: -1.60
+    ymax: 1.70
+  # corners of the arena in the video, in px
+  VIDEO:
+    TOP_LEFT: [550, 115] # corner at (xmin, ymax)
+    TOP_RIGHT: [1480, 135] # corner at (xmax, ymax)
+    BOTTOM_LEFT: [390, 928] # corner at (xmin, ymin)
+    BOTTOM_RIGHT: [1685, 907] # corner at (xmax, ymin)
 
 FUSION_PARAMS:
   THRESHOLD: 60

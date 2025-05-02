@@ -11,7 +11,6 @@ class DataFusion:
     def __init__(self, orig_video, data_file, config_path):
         video_name = orig_video.split(".")[-2].split("/")[-1]
 
-        video_file = "./test_data/" + video_name + "_temp.mp4"
         video_file = orig_video
         background_file = "./test_data/background_" + video_name + ".png"
         print(f"Video file: {video_file} \nBackground file: {background_file}")
@@ -29,11 +28,14 @@ class DataFusion:
         self.ani = Animator(dpi=100)
 
         # Find mapping from animation to video
-        pts_video = np.array([
-            config["CORNER_POS"]["TOP_LEFT"]["px"],
-            config["CORNER_POS"]["TOP_RIGHT"]["px"],
-            config["CORNER_POS"]["BOTTOM_LEFT"]["px"],
-            config["CORNER_POS"]["BOTTOM_RIGHT"]["px"]])
+        try:
+            pts_video = np.array([
+                config["CORNER_POS"]["VIDEO"]["TOP_LEFT"],
+                config["CORNER_POS"]["VIDEO"]["TOP_RIGHT"],
+                config["CORNER_POS"]["VIDEO"]["BOTTOM_LEFT"],
+                config["CORNER_POS"]["VIDEO"]["BOTTOM_RIGHT"]])
+        except KeyError as e:
+            raise KeyError(f"Missing corner position in config file: Please check the config file.") from e
             
         pts_ani = np.array(
             [[0, 0],                         # upper left
