@@ -83,7 +83,7 @@ class DataFusion:
 
         # Save the video stream
         fourcc = cv2.VideoWriter_fourcc(*"MP4V")
-        self.video_writer = cv2.VideoWriter("output.MP4", fourcc, self.video.fps, (bg_width, bg_height))
+        self.video_writer = cv2.VideoWriter("output.mp4", fourcc, self.video.fps, (bg_width, bg_height))
 
     def fuse_data(self):
         """

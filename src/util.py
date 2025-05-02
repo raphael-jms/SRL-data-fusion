@@ -92,7 +92,7 @@ class VideoStreamer(Streamer):
                 self.frame_count > self.end_playback_frame:
             self.video.release()
             print("Video stream ended.")
-            return None
+            return None, None
 
         return self.video.read()
 
