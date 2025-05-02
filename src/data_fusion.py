@@ -3,9 +3,9 @@ import cv2
 import numpy as np
 import yaml
 
-from util import DataStreamer, VideoStreamer
+from src.util import DataStreamer, VideoStreamer
 
-from example_animation import Animator
+from examples.example_animation import Animator
 
 class DataFusion:
     def __init__(self, orig_video, data_file, config_path):

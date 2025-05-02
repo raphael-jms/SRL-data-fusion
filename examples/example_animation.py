@@ -3,7 +3,7 @@ import numpy as np
 from collections import deque
 from matplotlib.patches import Rectangle, Circle
 
-from animation import AnimatorBase
+from src.animation import AnimatorBase
 # from aniTest import AnimatorBase
 
 # Remove unused import
