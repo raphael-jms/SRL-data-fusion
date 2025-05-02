@@ -63,6 +63,31 @@ class DataFusion:
         self.video = VideoStreamer(video_file, start_playback_t=7)
         self.data_stream = DataStreamer(data_file)
 
+        ## Check if there is a logo to be added
+        if "LOGO" in config.keys() and "FILE" in config["LOGO"].keys() and \
+                config["LOGO"]["FILE"] != "" and config["LOGO"]["FILE"] is not None:
+            self.add_logo = True
+            # Read and resize the logo
+            logo = cv2.imread(config["LOGO"]["FILE"])
+            logo_height, logo_width = config["LOGO"].get("SIZE", [100, 100])
+            logo_offset_height, logo_offset_width = config["LOGO"].get("OFFSET", [10, 10])
+
+            # Resize the logo to fit the background and save positions
+            logo = cv2.resize(logo, (logo_width, logo_height))
+            self.logo_start = [
+                int(bg_width - logo_width - logo_offset_width),
+                int(logo_offset_height)
+            ]
+            self.logo_end = [
+                self.logo_start[0] + logo_width,
+                self.logo_start[1] + logo_height
+            ]
+            self.logo = logo
+            self.logo_width, self.logo_height = logo_width, logo_height
+        else:
+            self.add_logo = False
+
+
     def fuse_data(self):
         """
         Fuse the data from the video stream and the animation.
@@ -131,6 +156,10 @@ class DataFusion:
             # cv2.cvtColor( cv2.bitwise_and(frame, frame, mask=cv2.bitwise_not(motion_mask)), cv2.COLOR_GRAY2RGB)
             cv2.bitwise_and(background, background, mask=cv2.bitwise_not(motion_mask))
         )
+
+        # Add the logo if specified
+        if self.add_logo:
+            result[self.logo_start[1]:self.logo_end[1], self.logo_start[0]:self.logo_end[0], :] = self.logo
 
         # Add text to the frame
         cv2.putText(result, f"Time video: {self.video.get_time()}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
