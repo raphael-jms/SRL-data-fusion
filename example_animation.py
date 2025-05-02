@@ -42,6 +42,8 @@ class Animator(AnimatorBase):
         super().__init__(dpi)
     
     def plot_setup(self):
+        self.add_grid_and_ticks()
+
         # Visualization parameters
         self.robot_width = 0.6
         self.robot_height = 0.6
@@ -223,9 +225,26 @@ class Animator(AnimatorBase):
                 [start_global[1], end_global[1]]
             )
 
+    def add_grid_and_ticks(self):
+        """
+        Add a grid and ticks on the inside of the plot.
+        """
+        # Show the axes
+        self.ax.grid(True, which='both', color='gray', linestyle='--', linewidth=0.75)
+        self.ax.tick_params(axis='both', which='major', labelsize=18)
+
+        # Adjust the tick labels to be inside the plot and not overlap with the grid
+        self.ax.tick_params(axis="y", direction="in", pad=-35)
+        for label in self.ax.yaxis.get_ticklabels():
+            label.set_verticalalignment('bottom')
+
+        self.ax.tick_params(axis="x", direction="in", pad=-15)
+        for label in self.ax.xaxis.get_ticklabels():
+            label.set_horizontalalignment('right') 
+
 if __name__ == "__main__":
-    # ani = Animator()
-    ani = AnimatorSimple(dpi=100)
+    ani = Animator()
+    # ani = AnimatorSimple(dpi=100)
     ani_img = ani.get_plot()
     plt.imshow(ani_img)
     plt.show()

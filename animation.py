@@ -75,9 +75,6 @@ class AnimatorBase:
         self.ax.set_xlim(self.xmin, self.xmax)
         self.ax.set_ylim(self.ymin, self.ymax)
         
-        # Turn off axes
-        self.ax.axis('off')
-        
         # Disable autoscaling
         self.ax.autoscale(False)
         

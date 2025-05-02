@@ -155,7 +155,6 @@ class DataStreamer(Streamer):
             
             self.last_timestamp = time
             return interpolated_data
- 
 
     def is_running(self):
         return self.reader.has_next()
