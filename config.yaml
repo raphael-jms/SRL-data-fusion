@@ -9,6 +9,9 @@ CORNER_POS:
   BOTTOM_RIGHT: 
     px: [1685, 907]
 
+FUSION_PARAMS:
+  THRESHOLD: 60
+  
 # BACKGROUND_IMG: "./test_data/background.png"
 
 # Add a logo if you like

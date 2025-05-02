@@ -22,7 +22,7 @@ class DataFusion:
         background = cv2.imread(background_file)
         self.background_gray = cv2.cvtColor(background, cv2.COLOR_BGR2GRAY)
 
-        self.THRESH = 60
+        self.THRESH = config["FUSION_PARAMS"].get("THRESHOLD", 60)
         self.ASSIGN_VALUE = 255
 
         ## Prepare intermediate animation layer
