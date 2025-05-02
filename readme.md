@@ -2,7 +2,7 @@
 
 Fuse video and custom animations for environments with a steady camera. The resulting video can look like this
 
-[ insert video ]
+https://github.com/user-attachments/assets/708ef155-d71a-4d70-aacf-a63b9bdbe828
 
 and e.g. be used to make research results better explainable, as done [here with more animations](https://github.com/DISCOWER/fault-tolerant-mpc).
 
