@@ -6,7 +6,7 @@ import os
 import warnings
 import cv2
 
-from src.util import Streamer
+from space_lab_data_fusion.src.util import Streamer
 
 class VideoStreamerLive(Streamer):
     def __init__(self, ros_node, topic_name):

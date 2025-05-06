@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 import yaml
 
-from examples.example_animation import Animator
+from space_lab_data_fusion.examples.example_animation import Animator
 
 class DataFusion:
     def __init__(self, video_streamer, data_streamer, config_path):

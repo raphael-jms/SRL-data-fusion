@@ -2,8 +2,8 @@ import rclpy # Python library for ROS 2
 from rclpy.node import Node # Handles the creation of nodes
 from sensor_msgs.msg import Image # Image is the message type
 
-from src.data_fusion import DataFusion
-from src.util_live import VideoStreamerLive, DataStreamerLive
+from space_lab_data_fusion.src.data_fusion import DataFusion
+from space_lab_data_fusion.src.util_live import VideoStreamerLive, DataStreamerLive
 
 """
 

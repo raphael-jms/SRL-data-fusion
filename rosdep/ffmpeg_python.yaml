@@ -1,0 +1,7 @@
+python3-ffmpeg-python:
+  ubuntu:
+    pip:
+      packages: [ffmpeg-python]
+  debian:
+    pip:
+      packages: [ffmpeg-python]

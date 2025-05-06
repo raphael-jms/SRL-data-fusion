@@ -13,7 +13,7 @@ from rosidl_runtime_py.utilities import get_message
 import rosbag2_py
 from micro_orbiting_msgs.msg import ControllerValues
 
-from src.setup_configuration import extract_background
+from space_lab_data_fusion.src.setup_configuration import extract_background
 
 class Streamer:
     def __init__(self, data_source):
