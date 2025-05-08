@@ -1,12 +1,14 @@
 # Install 
 
-This package depends on ffmpeg-python which requires a custom rosdep rule:
+This package depends on ffmpeg-python which needs to be installed from pip:
 
 ```bash
-# Add the custom rosdep rule
-sudo cp ./src/space_lab_data_fusion/rosdep/ffmpeg_python.yaml /etc/ros/rosdep/sources.list.d/
-rosdep update
+python3 -m <venvname> <myenvpath>
+pip install ffmpeg-python
+export PYTHONPATH=$PYTHONPATH:$(find <myenvpath>/<venvname> -name "site-packages" -type d | head -n 1)
 
-# Install dependencies
-rosdep install --from-paths src --ignore-src -r -y
+cd <workspacepath>
+colcon build
 ```
+
+Best is to have `export PYTHONPATH=$PYTHONPATH:$(find <myenvpath>/<venvname> -name "site-packages" -type d | head -n 1)` in your `.bashrc`.
