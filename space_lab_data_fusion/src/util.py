@@ -16,7 +16,7 @@ from micro_orbiting_msgs.msg import ControllerValues
 from space_lab_data_fusion.src.setup_configuration import extract_background
 
 class Streamer:
-    def __init__(self, data_source):
+    def __init__(self):
         pass
 
     def get_data(self, time=None):

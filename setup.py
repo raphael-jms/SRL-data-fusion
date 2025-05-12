@@ -1,4 +1,6 @@
 from setuptools import find_packages, setup
+from glob import glob
+import os
 
 package_name = 'space_lab_data_fusion'
 
@@ -9,7 +11,8 @@ setup(
     data_files=[
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
-        ('share/' + package_name, ['package.xml']),
+        ('share/' + package_name, ['package.xml']), 
+        (os.path.join('share', package_name), glob('launch/*.launch.py')),
     ],
     install_requires=[
         'setuptools',
@@ -24,6 +27,7 @@ setup(
     entry_points={
         'console_scripts': [
             'online = space_lab_data_fusion.online:main',
+            'pub_image = space_lab_data_fusion.publish_image:main',
         ],
     },
 )

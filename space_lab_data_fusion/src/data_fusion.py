@@ -14,7 +14,7 @@ class DataFusion:
         self.ASSIGN_VALUE = 255
 
         ## Prepare intermediate animation layer
-        self.ani = Animator(dpi=100)
+        self.ani = Animator(dpi=100, config_path=config_path)
 
         # Find mapping from animation to video
         # Get the corner positions in the arena video
@@ -60,6 +60,7 @@ class DataFusion:
                 config["LOGO"]["FILE"] != "" and config["LOGO"]["FILE"] is not None:
             self.add_logo = True
             # Read and resize the logo
+            print(config["LOGO"]["FILE"])
             logo = cv2.imread(config["LOGO"]["FILE"])
             logo_height, logo_width = config["LOGO"].get("SIZE", [100, 100])
             logo_offset_height, logo_offset_width = config["LOGO"].get("OFFSET", [10, 10])

@@ -10,8 +10,8 @@ from space_lab_data_fusion.src.animation import AnimatorBase
 # from micro_orbiting_msgs.msg import ControllerValues
 
 class AnimatorSimple(AnimatorBase):
-    def __init__(self, dpi=100):
-        super().__init__(dpi)
+    def __init__(self, dpi=100, config_path="config.yaml"):
+        super().__init__(dpi, config_path)
         # plot_setup is already called in AnimatorBase.__init__
         # Removing this redundant call: self.plot_setup()
     
@@ -37,9 +37,9 @@ class Animator(AnimatorBase):
     The animator uses blitting (see matplotlib doc) to increase the performance, although that is not
     strictly necessary.
     """
-    def __init__(self, dpi=100):
+    def __init__(self, dpi=100, config_path="config.yaml"):
         # Initialize base class first - this will call plot_setup
-        super().__init__(dpi)
+        super().__init__(dpi, config_path)
     
     def plot_setup(self):
         self.add_grid_and_ticks()

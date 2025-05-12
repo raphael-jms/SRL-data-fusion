@@ -19,6 +19,6 @@ FUSION_PARAMS:
 
 # Add a logo if you like
 LOGO: 
-  FILE: "./examples/not_KTH_logo.png" # Choose "" (empty string) for no logo
+  FILE: "./src/space_lab_data_fusion/space_lab_data_fusion/examples/not_KTH_logo.png" # Choose "" (empty string) for no logo
   SIZE: [120, 120] # Size of the logo in pixels
   OFFSET: [20, 20] # Offset of the logo in pixels, relative to the top right corner 

@@ -6,6 +6,8 @@ import os
 import warnings
 import cv2
 
+from micro_orbiting_msgs.msg import ControllerValues
+
 from space_lab_data_fusion.src.util import Streamer
 
 class VideoStreamerLive(Streamer):
@@ -15,15 +17,17 @@ class VideoStreamerLive(Streamer):
         self.image = None
         self.timestamp = None
 
+        self.ros_node = ros_node
+
         # To convert between ROS and OpenCV images
         self.bridge = CvBridge()
 
         # Where the background image is stored
-        self.background_path = None
+        self.ros_node.declare_parameter('background_path', "")
+        self.background_path = self.ros_node.get_parameter('background_path').value
 
-        self.ros_node = ros_node
         # TODO: Check if the topic name is valid
-        self.ros_node.declare_parameter('frame_rate', 30)
+        self.ros_node.declare_parameter('frame_rate', 30.0)
         self.subscriber = self.ros_node.create_subscription(
             Image,
             topic_name,
@@ -31,7 +35,7 @@ class VideoStreamerLive(Streamer):
             2
         )
 
-        self.fps = self.get_parameter('frame_rate').get_parameter_value().float_value
+        self.fps = self.ros_node.get_parameter('frame_rate').value
         
     def callback(self, msg):
         """
@@ -39,6 +43,10 @@ class VideoStreamerLive(Streamer):
         """
         self.image = self.bridge.imgmsg_to_cv2(msg)
         self.timestamp = msg.header.stamp.sec + msg.header.stamp.nanosec * 1e-9
+
+    def has_started(self):
+        """ Check if the data stream has started. """
+        return self.image is not None
 
     def is_running(self):
         """ Check if the video stream is still running. """
@@ -58,6 +66,7 @@ class VideoStreamerLive(Streamer):
         """
         Get the constant background image from the video stream.
         """
+        print("Background path: ", self.background_path)
         if not os.path.exists(self.background_path):
             raise FileNotFoundError(f"Background file {self.background_path} does not exist. Please provide a valid path.")
 
@@ -79,7 +88,7 @@ class DataStreamerLive(Streamer):
 
         # create a subscriber to the topic
         self.subscriber = self.ros_node.create_subscription(
-            Image,
+            ControllerValues,
             topic_name,
             self.callback,
             10
@@ -89,11 +98,15 @@ class DataStreamerLive(Streamer):
         """
         Callback function to receive the data from the ROS topic
         """
-        self.data = msg.data
+        self.data = msg
         self.timestamp = msg.header.stamp.sec + msg.header.stamp.nanosec * 1e-9
 
     def get_data(self, time=None):
         return self.data
+
+    def has_started(self):
+        """ Check if the data stream has started. """
+        return self.data is not None
 
     def is_running(self):
         """ Check if the data stream is still running. """
